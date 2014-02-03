@@ -28,6 +28,8 @@ import org.elasticsearch.common.logging.ESLoggerFactory;
 import org.elasticsearch.common.netty.buffer.ChannelBuffer;
 import org.elasticsearch.common.netty.buffer.ChannelBuffers;
 import org.elasticsearch.common.netty.channel.Channel;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.http.HttpException;
 import org.elasticsearch.redis.RedisRestRequest;
 import org.elasticsearch.rest.RestChannel;
 import org.elasticsearch.rest.RestRequest;
@@ -64,7 +66,25 @@ public class RedisRestChannel implements RestChannel {
             }
             ChannelBuffer writeBuffer = ChannelBuffers.dynamicBuffer(3 + contentLength);
             writeBuffer.writeByte('+');
-            ChannelBuffer buf = ((XContentRestResponse) response).builder().bytes().toChannelBuffer();
+            ChannelBuffer buf;
+            if (response instanceof XContentRestResponse) {
+                XContentBuilder builder = ((XContentRestResponse) response).builder();
+                if (response.contentThreadSafe()) {
+                    buf = builder.bytes().toChannelBuffer();
+                } else {
+                    buf = builder.bytes().copyBytesArray().toChannelBuffer();
+                }
+            } else {
+                try {
+                    if (response.contentThreadSafe()) {
+                        buf = ChannelBuffers.wrappedBuffer(response.content(), response.contentOffset(), response.contentLength());
+                    } else {
+                        buf = ChannelBuffers.copiedBuffer(response.content(), response.contentOffset(), response.contentLength());
+                    }
+                } catch (IOException e) {
+                    throw new HttpException("Failed to convert response to bytes", e);
+                }
+            }
             writeBuffer.writeBytes(buf);
             writeBuffer.writeBytes(CRLF.duplicate());
             channel.write(writeBuffer);
