@@ -1,6 +1,8 @@
 Redis Transport for ElasticSearch
 ==================================
 
+[![Build Status](https://travis-ci.org/kzwang/elasticsearch-transport-redis.png?branch=master)](https://travis-ci.org/kzwang/elasticsearch-transport-redis)
+
 The Redis transport plugin allows to use the REST interface over Redis (though with limitations).
 Modified from [Memcached Transport for ElasticSearch](https://github.com/elasticsearch/elasticsearch-transport-memcached/)
 
