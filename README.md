@@ -10,7 +10,7 @@ In order to install the plugin, simply run: `bin/plugin -install com.github.kzwa
 
 |      Redis Plugin           | elasticsearch         | Release date |
 |-----------------------------|-----------------------|:------------:|
-| 1.0.0-SNAPSHOT (master)     | 0.90.10               |              |
+| 1.1.0-SNAPSHOT (master)     | 0.90.10               |              |
 | 1.0.0                       | 0.90.10               | 2014-02-03   |
 
 
