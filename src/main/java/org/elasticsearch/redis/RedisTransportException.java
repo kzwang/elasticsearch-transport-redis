@@ -23,10 +23,10 @@
 
 package org.elasticsearch.redis;
 
-import org.elasticsearch.ElasticSearchException;
+import org.elasticsearch.ElasticsearchException;
 
 
-public class RedisTransportException extends ElasticSearchException {
+public class RedisTransportException extends ElasticsearchException {
 
     public RedisTransportException(String msg) {
         super(msg);

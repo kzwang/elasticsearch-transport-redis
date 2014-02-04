@@ -23,7 +23,7 @@
 
 package org.elasticsearch.redis;
 
-import org.elasticsearch.ElasticSearchException;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.common.component.AbstractLifecycleComponent;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
@@ -48,7 +48,7 @@ public class RedisServer extends AbstractLifecycleComponent<RedisServer> {
     }
 
     @Override
-    protected void doStart() throws ElasticSearchException {
+    protected void doStart() throws ElasticsearchException {
         transport.start();
         if (logger.isInfoEnabled()) {
             logger.info("{}", transport.boundAddress());
@@ -57,13 +57,13 @@ public class RedisServer extends AbstractLifecycleComponent<RedisServer> {
     }
 
     @Override
-    protected void doStop() throws ElasticSearchException {
+    protected void doStop() throws ElasticsearchException {
         nodeService.removeAttribute("redis_address");
         transport.stop();
     }
 
     @Override
-    protected void doClose() throws ElasticSearchException {
+    protected void doClose() throws ElasticsearchException {
         transport.close();
     }
 }

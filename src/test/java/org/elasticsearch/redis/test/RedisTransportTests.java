@@ -23,7 +23,7 @@ public class RedisTransportTests extends ElasticsearchIntegrationTest {
         // test set
         String setResult = jedis.set("/test/person/1", jsonBuilder().startObject().field("test", "value").endObject().string());
 
-        assertThat(setResult, containsString("\"ok\":true"));
+        assertThat(setResult, containsString("\"created\":true"));
         assertThat(setResult, containsString("\"_index\":\"test\""));
         assertThat(setResult, containsString("\"_type\":\"person\""));
         assertThat(setResult, containsString("\"_id\":\"1\""));
@@ -33,7 +33,7 @@ public class RedisTransportTests extends ElasticsearchIntegrationTest {
         assertThat(getResult, containsString("\"_index\":\"test\""));
         assertThat(getResult, containsString("\"_type\":\"person\""));
         assertThat(getResult, containsString("\"_id\":\"1\""));
-        assertThat(getResult, containsString("\"exists\":true"));
+        assertThat(getResult, containsString("\"found\":true"));
         assertThat(getResult, containsString("{\"test\":\"value\"}"));
 
         // test exist
