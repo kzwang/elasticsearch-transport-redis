@@ -1,7 +1,7 @@
 Redis Transport for ElasticSearch
 ==================================
 
-[![Build Status](https://travis-ci.org/kzwang/elasticsearch-transport-redis.png?branch=master)](https://travis-ci.org/kzwang/elasticsearch-transport-redis)
+[![Build Status](https://travis-ci.org/kzwang/elasticsearch-transport-redis.png?branch=1.x)](https://travis-ci.org/kzwang/elasticsearch-transport-redis)
 
 The Redis transport plugin allows to use the REST interface over Redis (though with limitations).
 Modified from [Memcached Transport for ElasticSearch](https://github.com/elasticsearch/elasticsearch-transport-memcached/)
@@ -10,7 +10,7 @@ In order to install the plugin, simply run: `bin/plugin -install com.github.kzwa
 
 |      Redis Plugin           | elasticsearch         | Release date |
 |-----------------------------|-----------------------|:------------:|
-| 1.1.0-SNAPSHOT (master)     | 0.90.10               |              |
+| 1.1.0-SNAPSHOT (1.x   )     | 0.90.11               |              |
 | 1.0.0                       | 0.90.10               | 2014-02-03   |
 
 
