@@ -24,10 +24,7 @@
 package org.elasticsearch.redis;
 
 import org.elasticsearch.common.collect.ImmutableList;
-import org.elasticsearch.common.inject.AbstractModule;
-import org.elasticsearch.common.inject.Module;
-import org.elasticsearch.common.inject.Modules;
-import org.elasticsearch.common.inject.SpawnModules;
+import org.elasticsearch.common.inject.*;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.redis.netty.NettyRedisServerTransportModule;
 

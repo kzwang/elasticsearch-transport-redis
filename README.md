@@ -21,10 +21,11 @@ In order to install the plugin, simply run: `bin/plugin -install com.github.kzwa
 Mapped to REST **GET** request, key is the URI (with parameters), returns same JSON result as REST
 
 ### SET
-Mapped to REST **POST** request, key is the URI (with parameters), value is REST body, returns same JSON result as REST
+Mapped to REST **POST** request, key is the URI (with parameters), value is REST body, by default returns `OK` for success and `Error` for fail, can be configured to return same JSON response as REST
+Can optionally add `PUT` keywords before REST body to use **PUT** request. e.g. `PUT{"test":true}`
 
 ### DELETE
-Mapped to REST **DELETE** request, key is the URI (with parameters), returns 1 for success and 0 for fail
+Mapped to REST **DELETE** request, key is the URI (with parameters), by default returns 1 for success and 0 for fail, can be configured to return same JSON response as REST
 
 ### EXISTS
 Mapped to REST **HEAD** request, key is the URI (with parameters), returns 1 for exists and 0 for not exists or fail
@@ -34,7 +35,9 @@ Disconnect the client
 
 
 ## Settings
-|  Setting         |   Description                                 |
-|------------------|-----------------------------------------------|
-| redis.enabled    | set to `false` to disable redis transport     |
-| redis.port       | A bind port range, default to `6379-6479`     |
+|  Setting               |   Description
+|------------------------|------------------------------------------------------------------------------------------------------------------------------------------------
+| redis.enabled          | set to `false` to disable redis transport
+| redis.port             | A bind port range, default to `6379-6479`
+| redis.response.set     | `standard` or `json`, controls response for `SET` command, `standard` will return `OK` or `Error`, `json` will return same JSON response as REST, default to `standard`, can be changed dynamically
+| redis.response.del     | `standard` or `json`, controls response for `DEL` command, `standard` will return `1` or `0`, `json` will return same JSON response as REST, default to `standard`, can be changed dynamically

@@ -32,6 +32,7 @@ import org.elasticsearch.common.netty.channel.ChannelHandlerContext;
 import org.elasticsearch.common.netty.channel.ExceptionEvent;
 import org.elasticsearch.common.netty.handler.codec.frame.FrameDecoder;
 import org.elasticsearch.redis.RedisRestRequest;
+import org.elasticsearch.redis.RedisTransportException;
 import org.elasticsearch.rest.RestRequest;
 
 import java.nio.charset.Charset;
@@ -75,19 +76,27 @@ public class RedisDecoder extends FrameDecoder {
 
         String cmd = command[2];
         String uri = null;
-        BytesArray data = null;
-        RestRequest.Method method = null;
+        String data = null;
+        RestRequest.Method method;
 
         if (command.length >= 4) {
             uri = command[4];
         }
 
         if (command.length >= 6) {
-            data = new BytesArray(command[6]);
+            data = command[6];
         }
 
         if (cmd.equalsIgnoreCase("set")) {
-            method = RestRequest.Method.POST;
+            if (data == null || data.isEmpty()) {
+                throw new RedisTransportException("SET command must have data");
+            }
+            if (data.startsWith("put") || data.startsWith("PUT")) {
+                data = data.substring(3);  // remove start 'PUT'
+                method = RestRequest.Method.PUT;
+            } else {
+                method = RestRequest.Method.POST;
+            }
         } else if (cmd.equalsIgnoreCase("get")) {
             method = RestRequest.Method.GET;
         } else if (cmd.equalsIgnoreCase("del")) {
@@ -100,21 +109,18 @@ public class RedisDecoder extends FrameDecoder {
             }
             return null;
         } else {
-            logger.error("Unsupported command [{}], ignoring and closing connection", cmd);
+            logger.error("Unsupported command [{}], ignoring", cmd);
 
             ChannelBuffer writeBuffer = ChannelBuffers.dynamicBuffer(1 + NOT_SUPPORT_STRING.length());
             writeBuffer.writeByte('-');
             writeBuffer.writeBytes(NOT_SUPPORT.duplicate());
             channel.write(writeBuffer);
-            if (channel.isConnected()) {
-                channel.disconnect();
-            }
             return null;
         }
 
         RedisRestRequest request = new RedisRestRequest(method, uri);
         if (data != null) {
-            request.setData(data);
+            request.setData(new BytesArray(data));
         }
 
         return request;

@@ -32,7 +32,6 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.http.HttpException;
 import org.elasticsearch.redis.RedisRestRequest;
 import org.elasticsearch.rest.RestChannel;
-import org.elasticsearch.rest.RestRequest;
 import org.elasticsearch.rest.RestResponse;
 import org.elasticsearch.rest.XContentRestResponse;
 
@@ -50,6 +49,9 @@ public class RedisRestChannel implements RestChannel {
 
     private final RedisRestRequest request;
 
+    public static String setOption = "standard";
+    public static String delOption = "standard";
+
     public RedisRestChannel(Channel channel, RedisRestRequest request) {
         this.channel = channel;
         this.request = request;
@@ -57,47 +59,83 @@ public class RedisRestChannel implements RestChannel {
 
     @Override
     public void sendResponse(RestResponse response) {
-        if (request.method().equals(RestRequest.Method.GET) || request.method().equals(RestRequest.Method.POST)) {
-            int contentLength = 0;
-            try {
-                contentLength = response.contentLength();
-            } catch (IOException e) {
-                logger.error("Failed to get content length", e);
-            }
-            ChannelBuffer writeBuffer = ChannelBuffers.dynamicBuffer(3 + contentLength);
-            writeBuffer.writeByte('+');
-            ChannelBuffer buf;
-            if (response instanceof XContentRestResponse) {
-                XContentBuilder builder = ((XContentRestResponse) response).builder();
-                if (response.contentThreadSafe()) {
-                    buf = builder.bytes().toChannelBuffer();
-                } else {
-                    buf = builder.bytes().copyBytesArray().toChannelBuffer();
-                }
-            } else {
-                try {
-                    if (response.contentThreadSafe()) {
-                        buf = ChannelBuffers.wrappedBuffer(response.content(), response.contentOffset(), response.contentLength());
+        switch (request.method()) {
+            case GET:
+                sendJsonResponse(response);
+                break;
+            case POST:
+            case PUT:
+                if (setOption.equals("json")) {
+                    sendJsonResponse(response);
+                } else {  // default to standard
+                    if (response.status().getStatus() >= 400) {
+                        sendByesResponse('-', 'E', 'r', 'r', 'o', 'r');
                     } else {
-                        buf = ChannelBuffers.copiedBuffer(response.content(), response.contentOffset(), response.contentLength());
+                        sendByesResponse('+', 'O', 'K');
                     }
-                } catch (IOException e) {
-                    throw new HttpException("Failed to convert response to bytes", e);
                 }
-            }
-            writeBuffer.writeBytes(buf);
-            writeBuffer.writeBytes(CRLF.duplicate());
-            channel.write(writeBuffer);
-        } else if (request.method().equals(RestRequest.Method.DELETE) || request.method().equals(RestRequest.Method.HEAD)) {
-            ChannelBuffer writeBuffer = ChannelBuffers.dynamicBuffer(4);
-            writeBuffer.writeByte(':');
-            if (response.status().getStatus() > 400) {
-                writeBuffer.writeByte('0');
-            } else {
-                writeBuffer.writeByte('1');
-            }
-            writeBuffer.writeBytes(CRLF.duplicate());
-            channel.write(writeBuffer);
+                break;
+            case DELETE:
+                if (delOption.equals("json")) {
+                    sendJsonResponse(response);
+                } else {   // default to standard
+                    if (response.status().getStatus() >= 400) {
+                        sendByesResponse(':', '0');
+                    } else {
+                        sendByesResponse(':', '1');
+                    }
+                }
+                break;
+            case HEAD:
+                if (response.status().getStatus() >= 400) {
+                    sendByesResponse(':', '0');
+                } else {
+                    sendByesResponse(':', '1');
+                }
+                break;
+
         }
+    }
+
+    private void sendJsonResponse(RestResponse response) {
+        int contentLength = 0;
+        try {
+            contentLength = response.contentLength();
+        } catch (IOException e) {
+            logger.error("Failed to get content length", e);
+        }
+        ChannelBuffer writeBuffer = ChannelBuffers.dynamicBuffer(3 + contentLength);
+        writeBuffer.writeByte('+');
+        ChannelBuffer buf;
+        if (response instanceof XContentRestResponse) {
+            XContentBuilder builder = ((XContentRestResponse) response).builder();
+            if (response.contentThreadSafe()) {
+                buf = builder.bytes().toChannelBuffer();
+            } else {
+                buf = builder.bytes().copyBytesArray().toChannelBuffer();
+            }
+        } else {
+            try {
+                if (response.contentThreadSafe()) {
+                    buf = ChannelBuffers.wrappedBuffer(response.content(), response.contentOffset(), response.contentLength());
+                } else {
+                    buf = ChannelBuffers.copiedBuffer(response.content(), response.contentOffset(), response.contentLength());
+                }
+            } catch (IOException e) {
+                throw new HttpException("Failed to convert response to bytes", e);
+            }
+        }
+        writeBuffer.writeBytes(buf);
+        writeBuffer.writeBytes(CRLF.duplicate());
+        channel.write(writeBuffer);
+    }
+
+    private void sendByesResponse(char... chars) {
+        ChannelBuffer writeBuffer = ChannelBuffers.dynamicBuffer(2 + chars.length);
+        for (char c : chars) {
+            writeBuffer.writeByte(c);
+        }
+        writeBuffer.writeBytes(CRLF.duplicate());
+        channel.write(writeBuffer);
     }
 }
