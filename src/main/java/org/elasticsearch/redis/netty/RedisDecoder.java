@@ -88,10 +88,7 @@ public class RedisDecoder extends FrameDecoder {
         }
 
         if (cmd.equalsIgnoreCase("set")) {
-            if (data == null || data.isEmpty()) {
-                throw new RedisTransportException("SET command must have data");
-            }
-            if (data.startsWith("put") || data.startsWith("PUT")) {
+            if (data != null && (data.startsWith("put") || data.startsWith("PUT"))) {
                 data = data.substring(3);  // remove start 'PUT'
                 method = RestRequest.Method.PUT;
             } else {
@@ -133,6 +130,6 @@ public class RedisDecoder extends FrameDecoder {
             ctx.getChannel().disconnect();
         }
 
-        logger.error("caught exception on redis decoder", e);
+        logger.error("caught exception on redis decoder", e.getCause());
     }
 }

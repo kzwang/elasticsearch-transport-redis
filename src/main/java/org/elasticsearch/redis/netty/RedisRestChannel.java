@@ -125,7 +125,13 @@ public class RedisRestChannel implements RestChannel {
                 throw new HttpException("Failed to convert response to bytes", e);
             }
         }
-        writeBuffer.writeBytes(buf);
+        int readableBytes = buf.readableBytes();
+        for (int i = 0; i < readableBytes; i++) {
+            byte next = buf.readByte();
+            if (next != '\r' && next != '\n') {  // some elasticsearch json response contains \r\n, need to remove them as redis response is terminated by \r\n
+                writeBuffer.writeByte(next);
+            }
+        }
         writeBuffer.writeBytes(CRLF.duplicate());
         channel.write(writeBuffer);
     }
