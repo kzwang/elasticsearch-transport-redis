@@ -6,11 +6,12 @@ Redis Transport for ElasticSearch
 The Redis transport plugin allows to use the REST interface over Redis (though with limitations).
 Modified from [Memcached Transport for ElasticSearch](https://github.com/elasticsearch/elasticsearch-transport-memcached/)
 
-In order to install the plugin, simply run: `bin/plugin -install com.github.kzwang/elasticsearch-transport-redis/2.0.0.RC2`.
+In order to install the plugin, simply run: `bin/plugin -install com.github.kzwang/elasticsearch-transport-redis/2.0.0`.
 
 |      Redis Plugin           | elasticsearch         | Release date |
 |-----------------------------|-----------------------|:------------:|
-| 2.0.0-SNAPSHOT (master)     | 1.0.0.RC2             |              |
+| 2.1.0-SNAPSHOT (master)     | 1.0.0                 |              |
+| 2.0.0                       | 1.0.0                 | 2014-02-13   |
 | 2.0.0.RC2                   | 1.0.0.RC2             | 2014-02-07   |
 | 2.0.0.RC1                   | 1.0.0.RC2             | 2014-02-04   |
 | 1.1.0-SNAPSHOT (1.x)        | 0.90.11               |              |
