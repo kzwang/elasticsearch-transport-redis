@@ -51,7 +51,7 @@ public class RedisTransportPlugin extends AbstractPlugin {
 
     @Override
     public String description() {
-        return "Exports elasticsearch APIs over redis";
+        return "Exports Elasticsearch APIs over redis";
     }
 
     @Override
